@@ -51,6 +51,11 @@
         -->
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>visual</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>TextFilter</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -62,11 +67,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>MavenWordEngine</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>visual</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

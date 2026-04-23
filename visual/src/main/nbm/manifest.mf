@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+OpenIDE-Module-Layer: com/ceos/visual/layer.xml
 OpenIDE-Module-Localizing-Bundle: com/ceos/visual/Bundle.properties
 OpenIDE-Module-Requires: org.openide.windows.WindowManager
 

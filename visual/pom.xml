@@ -73,16 +73,15 @@
             <version>RELEASE290</version>
         </dependency>
         <dependency>
-            <groupId>io.github.jeddict</groupId>
-            <artifactId>jeddict</artifactId>
-            <version>6.7.0</version>
-            <type>nbm</type>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-spi-palette</artifactId>
+            <version>RELEASE280</version>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-spi-palette</artifactId>
-            <version>RELEASE90</version>
-            <type>jar</type>
+            <artifactId>org-openide-nodes</artifactId>
+            <version>RELEASE280</version>
         </dependency>
     </dependencies>
     <properties>

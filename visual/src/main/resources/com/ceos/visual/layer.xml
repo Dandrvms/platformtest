@@ -1,0 +1,19 @@
+
+<filesystem>
+  <folder name="MyPalette">
+    <folder name="Shapes">
+      <attr name="displayName" stringvalue="Formas"/>
+      <file name="RectangleItem.instance">
+        <attr name="instanceCreate"
+              methodvalue="com.ceos.visual.ShapeItems.createRectangle"/>
+        <attr name="displayName" stringvalue="Rectángulo"/>
+        <attr name="tooltip"     stringvalue="Arrastra un rectángulo a la escena"/>
+      </file>
+      <file name="EllipseItem.instance">
+        <attr name="instanceCreate"
+              methodvalue="com.ceos.visual.ShapeItems.createEllipse"/>
+        <attr name="displayName" stringvalue="Elipse"/>
+      </file>
+    </folder>
+  </folder>
+</filesystem>
