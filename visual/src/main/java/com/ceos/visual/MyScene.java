@@ -8,12 +8,15 @@ import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.graph.GraphScene;
+import org.netbeans.api.visual.layout.LayoutFactory;
+import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
 
 public class MyScene extends GraphScene<String, String> {
 
     private final LayerWidget nodeLayer = new LayerWidget(this);
     private final LayerWidget connLayer = new LayerWidget(this);
+    private final LayerWidget interactLayer = new LayerWidget(this);
     private int nodeCount = 0;
     private int edgeCount = 0;
 
@@ -63,43 +66,38 @@ public class MyScene extends GraphScene<String, String> {
     }
 
     private Widget buildWidget(String shapeType) {
+        // Contenedor principal (el que se mueve)
+        Widget container = new Widget(this);
+        container.setLayout(LayoutFactory.createVerticalFlowLayout());
+        container.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
+        // La parte visual
         IconNodeWidget lw = new IconNodeWidget(this, IconNodeWidget.TextOrientation.RIGHT_CENTER);
-        lw.setLabel(shapeType.equals("ELLIPSE") ? "FASE 1" : "FASE 2");
-        switch (shapeType) {
-            case "ELLIPSE": {
-                // Un widget con forma de elipse usando IconNodeWidget o LabelWidget
+        lw.setLabel("FASE " + nodeCount);
+        lw.setBackground(Color.LIGHT_GRAY);
+        lw.setOpaque(true);
+        
 
-                //LabelWidget lw = new LabelWidget(this, "○ Elipse");
-                lw.setBackground(new Color(100, 180, 255));
-                lw.setOpaque(true);
-                lw.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+        // Pin exclusivo para conexiones (igual que en el código que funciona)
+        Widget pin = new Widget(this);
+        pin.setPreferredSize(new java.awt.Dimension(12, 12));
+        pin.setBackground(Color.LIGHT_GRAY);
+        pin.setOpaque(true);
+        pin.getActions().addAction(
+                ActionFactory.createConnectAction(interactLayer, new MyConnectProvider()));
 
-            }
-            default: { // RECTANGLE
-
-                //LabelWidget lw = new LabelWidget(this, "□ Rect");
-                lw.setBackground(new Color(180, 255, 140));
-                lw.setOpaque(true);
-                lw.setBorder(BorderFactory.createLineBorder(Color.GREEN.darker()));
-
-            }
-        }
-
-        lw.getActions().addAction(
+        // El movimiento va en el contenedor, NO en el pin
+        container.getActions().addAction(
                 ActionFactory.createAlignWithMoveAction(
                         nodeLayer, connLayer,
                         ActionFactory.createDefaultAlignWithMoveDecorator()));
-        
-        lw.getActions().addAction(
-                ActionFactory.createConnectAction(
-                        connLayer,
-                        new MyConnectProvider()));
-        
-        lw.getActions().addAction(ActionFactory.createSelectAction(new SingleSelectProvider()));
-        lw.getActions().addAction(ActionFactory.createMoveAction());
+        container.getActions().addAction(
+                ActionFactory.createSelectAction(new SingleSelectProvider()));
 
-        return lw;
+        container.addChild(lw);
+        container.addChild(pin);  // pin debajo del label
+
+        return container;
     }
 
     @Override
@@ -113,8 +111,10 @@ public class MyScene extends GraphScene<String, String> {
     @Override
     protected Widget attachEdgeWidget(String e) {
         ConnectionWidget conn = new ConnectionWidget(this);
-        conn.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
+        conn.setTargetAnchorShape(AnchorShape.NONE);
         conn.setStroke(new BasicStroke(2));
+        
+        conn.setRouter(RouterFactory.createOrthogonalSearchRouter(nodeLayer));
         connLayer.addChild(conn);
         return conn;
     }
@@ -154,37 +154,41 @@ public class MyScene extends GraphScene<String, String> {
 
         @Override
         public boolean isSourceWidget(Widget source) {
-            return source instanceof IconNodeWidget;
+            return true;  // el pin solo está en nodos, siempre es válido
         }
 
         @Override
         public ConnectorState isTargetWidget(Widget src, Widget trg) {
-            return src != trg && trg instanceof IconNodeWidget ? ConnectorState.ACCEPT : ConnectorState.REJECT;
+            Object trgObj = findObject(trg);
+            // findObject devuelve null si trg no es un nodo registrado
+            return (trgObj != null && trg != src)
+                    ? ConnectorState.ACCEPT : ConnectorState.REJECT;
         }
 
         @Override
-        public boolean hasCustomTargetWidgetResolver(Scene arg0) {
+        public boolean hasCustomTargetWidgetResolver(Scene s) {
             return false;
         }
 
         @Override
-        public Widget resolveTargetWidget(Scene arg0, Point arg1) {
+        public Widget resolveTargetWidget(Scene s, Point p) {
             return null;
         }
 
         @Override
         public void createConnection(Widget source, Widget target) {
-            String edgeId = "edge" + (edgeCount++);
             String sourceNode = (String) findObject(source);
             String targetNode = (String) findObject(target);
 
-            if (sourceNode != null && targetNode != null) {
-                addEdge(edgeId);
-                setEdgeSource(edgeId, sourceNode);
-                setEdgeTarget(edgeId, targetNode);
+            if (sourceNode == null || targetNode == null) {
+                return;
             }
+
+            String edgeId = "edge" + (edgeCount++);
+            addEdge(edgeId);
+            setEdgeSource(edgeId, sourceNode);
+            setEdgeTarget(edgeId, targetNode);
             validate();
         }
-
     }
 }
